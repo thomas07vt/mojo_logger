@@ -1,5 +1,5 @@
-require "mojo_logger/version"
+require 'mojo_logger/version'
+require 'mojo_logger/mojo_logger'
 
 module MojoLogger
-  # Your code goes here...
 end
