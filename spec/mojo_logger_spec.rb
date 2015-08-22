@@ -81,6 +81,25 @@ describe MojoLogger do
 
   end
 
+  context '.config' do
+
+    before do
+      MojoLogger.class_variable_set(:@@config, nil)
+      expect(MojoLogger.class_variable_get(:@@config)).to eq(nil)
+    end
+
+    it 'creates a Configurator object' do
+      MojoLogger.config
+      expect(MojoLogger.class_variable_get(:@@config)).to_not eq(nil)
+    end
+
+    it 'returns a Configurator object' do
+      expect(MojoLogger.config.class).to eq(MojoLogger::Configurator)
+    end
+
+  end
+
+
 
 ####################
 # Module section

@@ -62,6 +62,16 @@ module MojoLogger
       logger.error(mojo_msg(*args))
     end
 
+
+    def config
+      @@config = MojoLogger::Configurator.new
+
+      yield(@@config) if block_given?
+
+      @@config
+    end
+
+
   private
 
     def configure_logger
