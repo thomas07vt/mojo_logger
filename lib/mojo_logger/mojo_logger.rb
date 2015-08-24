@@ -1,7 +1,7 @@
 require 'java'
 require 'time'
 require 'json'
-require_relative '../../jars/log4j-1.2.17.jar'
+require_relative '../jars/log4j-1.2.17.jar'
 
 module MojoLogger
 
