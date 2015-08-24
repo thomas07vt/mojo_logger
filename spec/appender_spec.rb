@@ -7,11 +7,6 @@ describe MojoLogger::Appender do
       a = MojoLogger::Appender.new("console")
       expect(a.name).to eq("console")
     end
-
-    it 'sets the default level to info' do
-      a = MojoLogger::Appender.new("console")
-      expect(a.level).to eq("INFO")
-    end
   end
 
   context '#level=' do
