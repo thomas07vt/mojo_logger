@@ -12,5 +12,7 @@ module MojoLogger
     def initialize()
     end
 
+
+
   end
 end
