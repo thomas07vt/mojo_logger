@@ -24,9 +24,9 @@ module MojoLogger
     end
 
     def file=(file)
-      raise "FileNotFound" unless File.exist?(file)
+      #raise "FileNotFound" unless File.exist?(file)
       @type = :file
-      @file = File.expand_path(file)
+      @file = file #File.expand_path(file)
     end
 
     def generate_properties_string
@@ -45,7 +45,7 @@ module MojoLogger
       @type = :console
       @max_file_size    = opts[:max_file_size]    || '10MB'
       @max_backup_index = opts[:max_backup_index] || '10'
-      @pattern          = opts[:pattern]          || '%m %n'
+      @pattern          = opts[:pattern]          || '%n %m %n'
 
       self.level=(opts[:level]) if opts[:level]
       self.file=(opts[:file]) if opts[:file]
