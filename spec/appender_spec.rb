@@ -49,10 +49,8 @@ describe MojoLogger::Appender do
   end
 
   context '#generate_properties_string' do
-    it 'generates a string correctly.'
-
+    it 'generates a console string correctly.'
     it 'generates file properties when a file is given'
-
   end
 
 end
