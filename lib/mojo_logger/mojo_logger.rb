@@ -68,6 +68,7 @@ module MojoLogger
 
       yield(@@config) if block_given?
 
+      @@logger = configure_logger
       @@config
     end
 
@@ -75,9 +76,13 @@ module MojoLogger
   private
 
     def configure_logger
-      # Need a configurator
-      Java::org.apache.log4j.PropertyConfigurator.configure("#{File.dirname(__FILE__)}/../../conf/log4j.properties")
-      Java::org.apache.log4j.Logger.getLogger('Mojo')
+      @@config ||= MojoLogger::Configurator.new
+
+      stringio = StringIO.new(@@config.generate_properties_string)
+      java_stringio = org.jruby.util.IOInputStream.new(stringio)
+
+      Java::org.apache.log4j.PropertyConfigurator.configure(java_stringio)
+      Java::org.apache.log4j.Logger.getLogger('MojoLogger')
     end
 
   end # End 'class' methods
