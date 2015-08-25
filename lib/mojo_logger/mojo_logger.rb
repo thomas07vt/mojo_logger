@@ -42,7 +42,9 @@ module MojoLogger
         'message' => message
       }
 
-      msg.merge!(options) if options
+      processed_opts = process_options(options)
+      msg.merge!(processed_opts) if processed_opts
+
       msg.to_json
     end
 
@@ -83,6 +85,17 @@ module MojoLogger
 
       Java::org.apache.log4j.PropertyConfigurator.configure(java_stringio)
       Java::org.apache.log4j.Logger.getLogger('MojoLogger')
+    end
+
+    def process_options(options=nil)
+      case options
+      when Hash
+        options
+      when String
+        { 'options' => options }
+      else
+        nil
+      end
     end
 
   end # End 'class' methods

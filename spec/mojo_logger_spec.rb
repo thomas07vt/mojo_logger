@@ -79,6 +79,23 @@ describe MojoLogger do
       ))["mykey"]).to eq("value")
     end
 
+    it 'accepts a string for options' do
+      expect(JSON.parse(MojoLogger.mojo_msg(
+        @api_request,
+        "category",
+        "this is a message",
+        "This is an options...???"
+      ))["options"]).to eq("This is an options...???")
+    end
+
+    it 'does not merge options when no options are passed.' do
+      expect(JSON.parse(MojoLogger.mojo_msg(
+        @api_request,
+        "category",
+        "this is a message"
+      ))["options"]).to eq(nil)
+    end
+
   end
 
   context '.config' do
