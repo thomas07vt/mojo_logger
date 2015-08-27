@@ -64,23 +64,29 @@ module MojoLogger
       logger.error(mojo_msg(*args))
     end
 
+    def default_log_level
+      configurator.default_log_level
+    end
 
     def config
-      @@config = MojoLogger::Configurator.new
+      if block_given?
+        @@config = MojoLogger::Configurator.new
+        yield(@@config)
+        @@logger = configure_logger
+      end
 
-      yield(@@config) if block_given?
-
-      @@logger = configure_logger
-      @@config
+      configurator
     end
 
 
-  private
+    private
+
+    def configurator
+      @@config ||= MojoLogger::Configurator.new
+    end
 
     def configure_logger
-      @@config ||= MojoLogger::Configurator.new
-
-      stringio = StringIO.new(@@config.generate_properties_string)
+      stringio = StringIO.new(configurator.generate_properties_string)
       java_stringio = org.jruby.util.IOInputStream.new(stringio)
 
       Java::org.apache.log4j.PropertyConfigurator.configure(java_stringio)
