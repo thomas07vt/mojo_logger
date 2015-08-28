@@ -1,14 +1,13 @@
-
+require 'forwardable'
 
 module MojoLogger
   class Configurator
-    # stringio = StringIO.new(s)
-    # jstrinio = org.jruby.util.IOInputStream.new(stringio)
-    # logger = Java::org.apache.log4j.PropertyConfigurator.configure(jstringio)
-    # logger = Java::org.apache.log4j.Logger.getLogger('Mojo')
-    #
+    extend Forwardable
 
     attr_reader :properties_file
+    def_delegators :@default_appender, :pattern, :pattern=
+    def_delegators :@default_appender, :max_file_size, :max_file_size=
+    def_delegators :@default_appender, :max_backup_index, :max_backup_index=
 
     def initialize()
       @default_appender = MojoLogger::Appender.new("MojoLogger")
@@ -47,8 +46,8 @@ module MojoLogger
 
     def generate_properties_string
       properties = "#{generate_root_logger_line}\n"
-      properties += "#{generate_custom_lines}\n"
-      properties += "#{generate_appender_lines}\n"
+      properties << "#{generate_custom_lines}\n"
+      properties << "#{generate_appender_lines}\n"
       properties
     end
 
@@ -70,8 +69,8 @@ module MojoLogger
 
     def generate_appender_lines
       lines = ''
-      lines += @default_appender.generate_properties_string if @use_default_appender
-      lines += "#{@appenders.map { |a| a.generate_properties_string }.join("\n") }"
+      lines << @default_appender.generate_properties_string if @use_default_appender
+      lines << "#{@appenders.map { |a| a.generate_properties_string }.join("\n") }"
 
       lines
     end

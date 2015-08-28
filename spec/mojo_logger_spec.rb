@@ -114,6 +114,21 @@ describe MojoLogger do
       expect(MojoLogger.config.class).to eq(MojoLogger::Configurator)
     end
 
+    it 'allows pattern configuration' do
+      config = MojoLogger.config { |c| c.pattern = "%n%n %m %n%n" }
+      expect(config.pattern).to eq("%n%n %m %n%n")
+    end
+
+    it 'allows max_file_size configuration' do
+      config = MojoLogger.config { |c| c.max_file_size = "1MB" }
+      expect(config.max_file_size).to eq("1MB")
+    end
+
+    it 'allows max_backup_index configuration' do
+      config = MojoLogger.config { |c| c.max_backup_index = "5" }
+      expect(config.max_backup_index).to eq("5")
+    end
+
   end
 
 
