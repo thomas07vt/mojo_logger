@@ -34,7 +34,7 @@ module MojoLogger
     def mojo_msg(api_request, category, message, options=nil)
       msg = {
         'time' => Time.now.utc.strftime("%m-%d-%Y %H:%M:%S.%L %z"),
-        'app' => "Mojo",
+        'app' => configurator.application_name,
         'session_id' => api_request[:session_id],
         'reference_id' => api_request[:reference_id],
         'api' => api_request[:api],

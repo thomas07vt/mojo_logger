@@ -5,6 +5,7 @@ module MojoLogger
     extend Forwardable
 
     attr_reader :properties_file
+    attr_accessor :application_name
     def_delegators :@default_appender, :pattern, :pattern=
     def_delegators :@default_appender, :max_file_size, :max_file_size=
     def_delegators :@default_appender, :max_backup_index, :max_backup_index=
@@ -14,6 +15,7 @@ module MojoLogger
       @default_appender.level = "DEBUG"
       @use_default_appender = true
       @appenders = []
+      @application_name = "Mojo"
     end
 
     def default_log_level

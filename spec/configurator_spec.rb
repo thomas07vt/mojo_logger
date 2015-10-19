@@ -66,4 +66,9 @@ describe MojoLogger::Configurator do
 
   end
 
+  it 'accepts an application name' do
+    @config.application_name = "MojoLogger"
+    expect(@config.application_name).to eq("MojoLogger")
+  end
+
 end

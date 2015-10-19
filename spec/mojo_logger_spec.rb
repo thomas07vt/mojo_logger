@@ -96,6 +96,15 @@ describe MojoLogger do
       ))["options"]).to eq(nil)
     end
 
+    it 'prints the application name' do
+      config = MojoLogger.config { |c| c.application_name = "RspecApp" }
+      expect(JSON.parse(MojoLogger.mojo_msg(
+        @api_request,
+        "category",
+        "this is a message"
+      ))["app"]).to eq("RspecApp")
+    end
+
   end
 
   context '.config' do
