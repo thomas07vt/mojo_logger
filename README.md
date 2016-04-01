@@ -126,7 +126,7 @@ mojo_debug({}, 'category', 'this is my message', { custom: :field })
 
 class CustomLogAdapter
   # an adapter must repond to #format() and return a Hash
-  def format(application, message)
+  def format(message)
     {
       'message'     => message,
       'constant'    => 'Hello!'
@@ -141,7 +141,7 @@ end
 
 # now you can call the #mojo_* methods with the parameter you define
 
-mojo_debug('application!', 'my message')
+mojo_debug('my message')
 # => {"time":"04-01-2016 22:26:43.441 +0000","app":"Mojo","env":"development","message":"my message","constant":"Hello!"}
 
 ```
