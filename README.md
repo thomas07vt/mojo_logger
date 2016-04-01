@@ -28,8 +28,8 @@ Or install it yourself as:
 ```ruby
 require 'mojo_logger'
 
-MojoLogger.logger.debug "This is a message"
-#=> This is a message 
+MojoLogger.debug "This is a message"
+#=> This is a message
 
 ```
 
@@ -74,10 +74,10 @@ MojoLogger.config do |config|
   config.default_log_level = :warn
 end
 
-MojoLogger.logger.debug "This won't show up"
+MojoLogger.debug "This won't show up"
 #=> nil
 
-MojoLogger.logger.warn "This will show up"
+MojoLogger.warn "This will show up"
 #=> This will show up
 
 ```
@@ -106,6 +106,43 @@ require 'mojo_logger'
 MojoLogger.config do |config|
   config.custom_line("log4j.logger.org.apache.zookeeper.ClientCnxn=INFO")
 end
+
+```
+
+#### Add Custom adapter for format your logs
+Add an adapter that will accept whatever fields you want to input and output a hash.
+This hash will be converted to json by MojoLogger.
+
+```ruby
+require 'mojo_logger'
+include MojoLogger
+
+ENV['RACK_ENV'] = 'development'
+
+# by default you use the standard adapter
+
+mojo_debug({}, 'category', 'this is my message', { custom: :field })
+# => {"time":"04-01-2016 22:25:33.019 +0000","app":"Mojo","env":"development","session_id":null,"reference_id":null,"api":null,"category":"category","message":"this is my message","custom":"field"}
+
+class CustomLogAdapter
+  # an adapter must repond to #format() and return a Hash
+  def format(message)
+    {
+      'message'     => message,
+      'constant'    => 'Hello!'
+    }
+  end
+end
+
+
+MojoLogger.config do |config|
+  config.adapter = CustomLogAdapter.new
+end
+
+# now you can call the #mojo_* methods with the parameter you define
+
+mojo_debug('my message')
+# => {"time":"04-01-2016 22:26:43.441 +0000","app":"Mojo","env":"development","message":"my message","constant":"Hello!"}
 
 ```
 
