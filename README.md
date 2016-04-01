@@ -115,17 +115,19 @@ This hash will be converted to json by MojoLogger.
 
 ```ruby
 require 'mojo_logger'
+include MojoLogger
+
+ENV['RACK_ENV'] = 'development'
 
 # by default you use the standard adapter
 
 mojo_debug({}, 'category', 'this is my message', { custom: :field })
-# =>
+# => {"time":"04-01-2016 22:25:33.019 +0000","app":"Mojo","env":"development","session_id":null,"reference_id":null,"api":null,"category":"category","message":"this is my message","custom":"field"}
 
 class CustomLogAdapter
   # an adapter must repond to #format() and return a Hash
   def format(application, message)
     {
-      'application' => application,
       'message'     => message,
       'constant'    => 'Hello!'
     }
@@ -134,13 +136,13 @@ end
 
 
 MojoLogger.config do |config|
-  config.adapter CustomLogAdapter.new
+  config.adapter = CustomLogAdapter.new
 end
 
 # now you can call the #mojo_* methods with the parameter you define
 
 mojo_debug('application!', 'my message')
-# =>
+# => {"time":"04-01-2016 22:26:43.441 +0000","app":"Mojo","env":"development","message":"my message","constant":"Hello!"}
 
 ```
 
