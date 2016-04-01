@@ -71,4 +71,13 @@ describe MojoLogger::Configurator do
     expect(@config.application_name).to eq("MojoLogger")
   end
 
+  it 'accepts an adapter' do
+    @config.adapter = OpenStruct.new(format: ->(msg) { {msg: msg} })
+    expect(@config.adapter.class).to eq(OpenStruct)
+  end
+
+  it 'has a default adapter' do
+    expect(@config.adapter.class).to eq(MojoLogger::DefaultAdapter)
+  end
+
 end

@@ -32,6 +32,17 @@ describe MojoLogger do
 
   end
 
+  context '.debug, .info, .warn, .error, .fatal' do
+
+    it 'delegates to #logger' do
+      [:debug, :info, :warn, :error, :fatal].each do |lvl|
+        expect(MojoLogger.logger).to receive(lvl)
+        MojoLogger.send(lvl, *@mojo_params)
+      end
+    end
+
+  end
+
   context '.mojo_debug' do
     it 'calls debug on the logger object' do
       expect(MojoLogger.logger).to receive(:debug)
@@ -62,47 +73,94 @@ describe MojoLogger do
 
   context '.mojo_msg' do
 
-    it 'returns a json message' do
-      expect { JSON.parse(MojoLogger.mojo_msg(
-        @api_request,
-        "category",
-        "this is a message"
-      )) }.to_not raise_error
+    context 'default logger' do
+      it 'returns a json message' do
+        expect { JSON.parse(MojoLogger.mojo_msg(
+          @api_request,
+          "category",
+          "this is a message"
+        )) }.to_not raise_error
+      end
+
+      it 'accepts and options hash and merges it onto json' do
+        expect(JSON.parse(MojoLogger.mojo_msg(
+          @api_request,
+          "category",
+          "this is a message",
+          { mykey: :value }
+        ))["mykey"]).to eq("value")
+      end
+
+      it 'accepts a string for options' do
+        expect(JSON.parse(MojoLogger.mojo_msg(
+          @api_request,
+          "category",
+          "this is a message",
+          "This is an options...???"
+        ))["options"]).to eq("This is an options...???")
+      end
+
+      it 'does not merge options when no options are passed.' do
+        expect(JSON.parse(MojoLogger.mojo_msg(
+          @api_request,
+          "category",
+          "this is a message"
+        ))["options"]).to eq(nil)
+      end
+
+      it 'prints the application name' do
+        config = MojoLogger.config { |c| c.application_name = "RspecApp" }
+        expect(JSON.parse(MojoLogger.mojo_msg(
+          @api_request,
+          "category",
+          "this is a message"
+        ))["app"]).to eq("RspecApp")
+      end
+
+      it 'prints the env' do
+        config = MojoLogger.config { |c| c.application_name = "RspecApp" }
+        expect(JSON.parse(MojoLogger.mojo_msg(
+          @api_request,
+          "category",
+          "this is a message"
+        ))["env"]).to eq("test")
+      end
+
+      it 'prints the time' do
+        config = MojoLogger.config { |c| c.application_name = "RspecApp" }
+        expect(JSON.parse(MojoLogger.mojo_msg(
+          @api_request,
+          "category",
+          "this is a message"
+        ))["time"]).to_not eq(nil)
+      end
+
     end
 
-    it 'accepts and options hash and merges it onto json' do
-      expect(JSON.parse(MojoLogger.mojo_msg(
-        @api_request,
-        "category",
-        "this is a message",
-        { mykey: :value }
-      ))["mykey"]).to eq("value")
-    end
+    context 'other adapters' do
+      class CustomAdapter
+        def format(msg, msg2)
+          { msg: msg, msg2: msg2 }
+        end
+      end
 
-    it 'accepts a string for options' do
-      expect(JSON.parse(MojoLogger.mojo_msg(
-        @api_request,
-        "category",
-        "this is a message",
-        "This is an options...???"
-      ))["options"]).to eq("This is an options...???")
-    end
+      before do
+        config = MojoLogger.config { |c| c.adapter = CustomAdapter.new }
+      end
 
-    it 'does not merge options when no options are passed.' do
-      expect(JSON.parse(MojoLogger.mojo_msg(
-        @api_request,
-        "category",
-        "this is a message"
-      ))["options"]).to eq(nil)
-    end
+      it 'prints the default keys' do
+        res = JSON.parse(MojoLogger.mojo_msg('first!', 'second!'))
+        expect(res["time"]).to_not eq(nil)
+        expect(res["app"]).to_not eq(nil)
+        expect(res["env"]).to_not eq(nil)
+      end
 
-    it 'prints the application name' do
-      config = MojoLogger.config { |c| c.application_name = "RspecApp" }
-      expect(JSON.parse(MojoLogger.mojo_msg(
-        @api_request,
-        "category",
-        "this is a message"
-      ))["app"]).to eq("RspecApp")
+      it 'prints the custom keys' do
+        res = JSON.parse(MojoLogger.mojo_msg('first!', 'second!'))
+        expect(res["msg"]).to eq('first!')
+        expect(res["msg2"]).to eq('second!')
+      end
+
     end
 
   end

@@ -4,7 +4,7 @@ module MojoLogger
   class Configurator
     extend Forwardable
 
-    attr_reader :properties_file
+    attr_reader :properties_file, :env
     attr_accessor :application_name
     def_delegators :@default_appender, :pattern, :pattern=
     def_delegators :@default_appender, :max_file_size, :max_file_size=
@@ -16,6 +16,8 @@ module MojoLogger
       @use_default_appender = true
       @appenders = []
       @application_name = "Mojo"
+      @adapter = DefaultAdapter.new
+      @env = ENV['RAILS_ENV'] || ENV['RACK_ENV']
     end
 
     def default_log_level
@@ -51,6 +53,15 @@ module MojoLogger
       properties << "#{generate_custom_lines}\n"
       properties << "#{generate_appender_lines}\n"
       properties
+    end
+
+
+    def adapter=(adapter)
+      @adapter = adapter
+    end
+
+    def adapter
+      @adapter
     end
 
     private

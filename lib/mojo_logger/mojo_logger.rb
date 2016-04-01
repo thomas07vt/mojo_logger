@@ -1,9 +1,13 @@
 require 'java'
 require 'time'
 require 'json'
+require 'stringio'
+require 'forwardable'
 require_relative '../jars/log4j-1.2.17.jar'
 
 module MojoLogger
+  extend SingleForwardable
+  def_delegators :logger, :debug, :info, :warn, :error, :fatal
 
   def mojo_debug(*args)
     MojoLogger.mojo_debug(*args)
@@ -31,19 +35,12 @@ module MojoLogger
       @@logger ||= configure_logger
     end
 
-    def mojo_msg(api_request, category, message, options=nil)
+    def mojo_msg(*args)
       msg = {
         'time' => Time.now.utc.strftime("%m-%d-%Y %H:%M:%S.%L %z"),
-        'app' => configurator.application_name,
-        'session_id' => api_request[:session_id],
-        'reference_id' => api_request[:reference_id],
-        'api' => api_request[:api],
-        'category' => category,
-        'message' => message
-      }
-
-      processed_opts = process_options(options)
-      msg.merge!(processed_opts) if processed_opts
+        'app'  => configurator.application_name,
+        'env'  => configurator.env
+      }.merge!(configurator.adapter.format(*args))
 
       msg.to_json
     end
