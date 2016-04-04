@@ -25,8 +25,16 @@ module MojoLogger
     MojoLogger.mojo_error(*args)
   end
 
+  def mojo_fatal(*args)
+    MojoLogger.mojo_fatal(*args)
+  end
+
   def logger
     MojoLogger.logger
+  end
+
+  def level
+    MojoLogger.level
   end
 
   class << self
@@ -46,23 +54,39 @@ module MojoLogger
     end
 
     def mojo_debug(*args)
-      logger.debug(mojo_msg(*args))
+      if level == :debug
+        logger.debug(mojo_msg(*args))
+      end
     end
 
     def mojo_info(*args)
-      logger.info(mojo_msg(*args))
+      if level == :debug || level == :info
+        logger.info(mojo_msg(*args))
+      end
     end
 
     def mojo_warn(*args)
-      logger.warn(mojo_msg(*args))
+      unless level == :error || level == :fatal
+        logger.warn(mojo_msg(*args))
+      end
     end
 
     def mojo_error(*args)
-      logger.error(mojo_msg(*args))
+      unless level == :fatal
+        logger.error(mojo_msg(*args))
+      end
+    end
+
+    def mojo_fatal(*args)
+      logger.fatal(mojo_msg(*args))
     end
 
     def default_log_level
       configurator.default_log_level
+    end
+
+    def level
+      @level ||= configurator.default_log_level.downcase.to_sym
     end
 
     def config
@@ -72,9 +96,9 @@ module MojoLogger
         @@logger = configure_logger
       end
 
+      @level = configurator.default_log_level.downcase.to_sym
       configurator
     end
-
 
     private
 

@@ -163,6 +163,21 @@ describe MojoLogger do
 
     end
 
+    context '.level' do
+      before do
+        MojoLogger.config { |c| c.default_log_level = :warn }
+      end
+
+      after do
+        MojoLogger.config { |c| c.default_log_level = :debug }
+      end
+
+      it 'returns the current log level' do
+        expect(MojoLogger.level).to eq(:warn)
+      end
+
+    end
+
   end
 
   context '.config' do
