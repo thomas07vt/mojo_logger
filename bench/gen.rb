@@ -9,7 +9,7 @@ end
 
 @mojo_args = [{}, "Category", "Test Message", { key: "This is a string", key2: "this is some other thing", 'key2' => "Third thing" }]
 
-#5.times do
+5.times do
 
   Benchmark.bmbm do |x|
     x.report("debug")  { 100000.times { MojoLogger.debug "Log message" }  }
@@ -22,6 +22,6 @@ end
     x.report("mojo_info")   { 100000.times { MojoLogger.mojo_info(*@mojo_args)  }  }
   end
 
-#end
+end
 
 
