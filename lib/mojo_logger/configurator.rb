@@ -4,6 +4,12 @@ module MojoLogger
   class Configurator
     extend Forwardable
 
+    ENV_MAPPING = {
+      'development' => 'dev',
+      'stage'       => 'stg',
+      'production'   => 'prd'
+    }
+
     attr_reader :properties_file, :env
     attr_accessor :application_name
     def_delegators :@default_appender, :pattern, :pattern=
@@ -11,13 +17,13 @@ module MojoLogger
     def_delegators :@default_appender, :max_backup_index, :max_backup_index=
 
     def initialize()
-      @default_appender = MojoLogger::Appender.new("MojoLogger")
+      @default_appender       = MojoLogger::Appender.new("MojoLogger")
       @default_appender.level = "DEBUG"
-      @use_default_appender = true
-      @appenders = []
-      @application_name = "Mojo"
-      @adapter = DefaultAdapter.new
-      @env = ENV['RAILS_ENV'] || ENV['RACK_ENV']
+      @use_default_appender   = true
+      @appenders              = []
+      @application_name       = "Mojo"
+      @adapter                = DefaultAdapter.new
+      @env                    = environment
     end
 
     def default_log_level
@@ -86,6 +92,11 @@ module MojoLogger
       lines << "#{@appenders.map { |a| a.generate_properties_string }.join("\n") }"
 
       lines
+    end
+
+    def environment
+      env_var = ENV['RAILS_ENV'] || ENV['RACK_ENV']
+      ENV_MAPPING.fetch(env_var, env_var)
     end
 
   end
