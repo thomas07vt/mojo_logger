@@ -22,7 +22,11 @@ describe MojoLogger do
   context '.logger' do
 
     it 'retuns a generic log4j logger object' do
-      expect(MojoLogger.logger.class).to eq(Java::OrgApacheLog4j::Logger)
+      if RUBY_PLATFORM == 'java'
+        expect(MojoLogger.logger.class).to eq(Java::OrgApacheLog4j::Logger)
+      else
+        expect(MojoLogger.logger.class).to eq(Logger)
+      end
     end
 
     it 'caches the logger object' do
@@ -174,8 +178,32 @@ describe MojoLogger do
 
       it 'returns the current log level' do
         expect(MojoLogger.level).to eq(:warn)
+        MojoLogger.level = :warn
+        expect(MojoLogger.level).to eq(:warn)
       end
 
+    end
+
+    context '.level=' do
+      before do
+        MojoLogger.config { |c| c.default_log_level = :debug }
+        expect(MojoLogger.level).to eq(:debug)
+      end
+
+      after do
+        MojoLogger.config { |c| c.default_log_level = :debug }
+      end
+
+      it 'sets the log level' do
+        MojoLogger.level = :warn
+        expect(MojoLogger.level).to eq(:warn)
+
+        expect(MojoLogger.logger).to receive(:debug).exactly(0).times
+        expect(MojoLogger.logger).to receive(:warn).exactly(1).times
+
+        MojoLogger.mojo_debug({},'cat','Message')
+        MojoLogger.mojo_warn({},'cat','Message')
+      end
     end
 
   end
@@ -228,7 +256,11 @@ describe MojoLogger do
     context '#logger' do
 
       it 'retuns a generic log4j logger object' do
-        expect(@obj.logger.class).to eq(Java::OrgApacheLog4j::Logger)
+        if RUBY_PLATFORM == 'java'
+          expect(@obj.logger.class).to eq(Java::OrgApacheLog4j::Logger)
+        else
+          expect(@obj.logger.class).to eq(Logger)
+        end
       end
 
       it 'caches the logger object' do

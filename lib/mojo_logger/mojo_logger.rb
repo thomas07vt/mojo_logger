@@ -1,9 +1,13 @@
-require 'java'
 require 'time'
 require 'json'
 require 'stringio'
 require 'forwardable'
-require_relative '../jars/log4j-1.2.17.jar'
+
+# Making this work with mri ruby
+require 'java'                              if RUBY_PLATFORM == 'java'
+require_relative '../jars/log4j-1.2.17.jar' if RUBY_PLATFORM == 'java'
+
+require 'logger'                            if RUBY_PLATFORM != 'java'
 
 module MojoLogger
   extend SingleForwardable
@@ -89,6 +93,12 @@ module MojoLogger
       @level ||= configurator.default_log_level.downcase.to_sym
     end
 
+    def level=(lvl)
+      configurator.default_log_level = lvl
+      @@logger = configure_logger
+      @level   = configurator.default_log_level.downcase.to_sym
+    end
+
     def config
       if block_given?
         @@config = MojoLogger::Configurator.new
@@ -107,11 +117,17 @@ module MojoLogger
     end
 
     def configure_logger
-      stringio = StringIO.new(configurator.generate_properties_string)
-      java_stringio = org.jruby.util.IOInputStream.new(stringio)
+      if RUBY_PLATFORM == 'java'
+        stringio = StringIO.new(configurator.generate_properties_string)
+        java_stringio = org.jruby.util.IOInputStream.new(stringio)
 
-      Java::org.apache.log4j.PropertyConfigurator.configure(java_stringio)
-      Java::org.apache.log4j.Logger.getLogger('MojoLogger')
+        Java::org.apache.log4j.PropertyConfigurator.configure(java_stringio)
+        Java::org.apache.log4j.Logger.getLogger('MojoLogger')
+      else
+        l = Logger.new(STDOUT)
+        l.level = configurator.default_log_level.downcase.to_sym
+        l
+      end
     end
 
     def process_options(options=nil)
